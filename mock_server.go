@@ -9,10 +9,12 @@ import (
 )
 
 // NewMockServer creates and returns a mock server
-func NewMockServer(res []byte, statusCode int, headers map[string]string) *httptest.Server {
+func NewMockServer(res []byte, statusCode int, headers []map[string]string) *httptest.Server {
 	f := func(w http.ResponseWriter, r *http.Request) {
-		for key, value := range headers {
-			w.Header().Set(key, value)
+		for _, header := range headers {
+			for key, value := range header {
+				w.Header().Set(key, value)
+			}
 		}
 		w.WriteHeader(statusCode)
 		_, _ = w.Write(res)
@@ -21,12 +23,14 @@ func NewMockServer(res []byte, statusCode int, headers map[string]string) *httpt
 }
 
 // NewMockEchoServer ...
-func NewMockEchoServer(target, method, responseBody string, headers map[string]string) (echo.Context, *http.Request, *httptest.ResponseRecorder) {
+func NewMockEchoServer(target, method, responseBody string, headers []map[string]string) (echo.Context, *http.Request, *httptest.ResponseRecorder) {
 	e := echo.New()
 	request := httptest.NewRequest(method, target, bytes.NewReader([]byte(responseBody)))
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	for key, value := range headers {
-		request.Header.Set(key, value)
+	for _, header := range headers {
+		for key, value := range header {
+			request.Header.Set(key, value)
+		}
 	}
 	recorder := httptest.NewRecorder()
 	context := e.NewContext(request, recorder)
