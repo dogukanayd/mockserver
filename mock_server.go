@@ -14,21 +14,21 @@ func NewMockServer(res []byte, statusCode int, headers map[string]string) *httpt
 		for key, value := range headers {
 			w.Header().Set(key, value)
 		}
-
 		w.WriteHeader(statusCode)
 		_, _ = w.Write(res)
 	}
-
 	return httptest.NewServer(http.HandlerFunc(f))
 }
 
 // NewMockEchoServer ...
-func NewMockEchoServer(target, method, responseBody string) (echo.Context, *http.Request, *httptest.ResponseRecorder) {
+func NewMockEchoServer(target, method, responseBody string, headers map[string]string) (echo.Context, *http.Request, *httptest.ResponseRecorder) {
 	e := echo.New()
 	request := httptest.NewRequest(method, target, bytes.NewReader([]byte(responseBody)))
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	for key, value := range headers {
+		request.Header.Set(key, value)
+	}
 	recorder := httptest.NewRecorder()
 	context := e.NewContext(request, recorder)
-
 	return context, request, recorder
 }
