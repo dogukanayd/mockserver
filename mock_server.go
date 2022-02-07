@@ -9,11 +9,11 @@ import (
 )
 
 // NewMockServer creates and returns a mock server
-func NewMockServer(res []byte, statusCode int, headers []map[string]string) *httptest.Server {
+func NewMockServer(res []byte, statusCode int, headers []map[string]interface{}) *httptest.Server {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		for _, header := range headers {
 			for key, value := range header {
-				w.Header().Set(key, value)
+				w.Header().Set(key, value.(string))
 			}
 		}
 		w.WriteHeader(statusCode)
